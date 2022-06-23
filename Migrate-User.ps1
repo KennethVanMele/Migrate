@@ -41,6 +41,7 @@ if (-not (Test-Path -Path "\\$nPC\c$\users\$userName")){
         Write-Verbose -Message "Profile for user, $userName, found on $nPC."
     }
 }
+
 if ($full){
     Write-Verbose -Message "Copying data."
 }else{
@@ -61,6 +62,14 @@ if (Test-Path -Path "$oldFolder\Desktop"){
         if ($prompt -eq "y" -or $prompt -eq "yes"){
             Robocopy.exe "$oldFolder\Desktop" "$newFolder\Desktop" /E
             Write-Verbose -Message "Copying Desktop."
+        }elseif($prompt -eq "n" -or $prompt -eq "no"){
+            Write-Verbose -Message "Skipping Desktop."
+        }else{
+            Throw "Invalid input."
         }
+    }else{
+        Write-Verbose -Message "Desktop appears empty. Moving on."
     }
+} else{
+    Write-Verbose -Message "Desktop not found. Moving on."
 }
