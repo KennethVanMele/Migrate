@@ -68,8 +68,62 @@ if (Test-Path -Path "$oldFolder\Desktop"){
             Throw "Invalid input."
         }
     }else{
-        Write-Verbose -Message "Desktop appears empty. Moving on."
+        Write-Verbose -Message "Desktop appears to be empty. Moving on."
     }
 } else{
     Write-Verbose -Message "Desktop not found. Moving on."
 }
+
+#Pictures
+if (Test-Path -Path "$oldFolder\Pictures"){
+    $fs = ((Get-ChildItem -Path "$oldFolder\Pictures" -Recurse | Measure-Object -Property Length -Sum).Sum / 1Mb)
+    if ($fs -gt 0.002 -or $full){
+        $fs = [math]::Round($fs, 2)
+        if (-not $full) {
+            $prompt = Read-Host -Prompt "Pictures contains $fs Mbs of data. Copy to $nPC?"
+        }else{
+            $prompt = "y"
+        }
+        if ($prompt -eq "y" -or $prompt -eq "yes"){
+            Robocopy.exe "$oldFolder\Pictures" "$newFolder\Pictures" /E
+            Write-Verbose -Message "Copying Pictures."
+        }elseif($prompt -eq "n" -or $prompt -eq "no"){
+            Write-Verbose -Message "Skipping Pictures."
+        }else{
+            Throw "Invalid input."
+        }
+    }else{
+        Write-Verbose -Message "Pictures appears to be empty. Moving on."
+    }
+} else{
+    Write-Verbose -Message "Pictures not found. Moving on."
+}
+
+#Videos
+if (Test-Path -Path "$oldFolder\Videos"){
+    $fs = ((Get-ChildItem -Path "$oldFolder\Videos" -Recurse | Measure-Object -Property Length -Sum).Sum / 1Mb)
+    if ($fs -gt 0.002 -or $full){
+        $fs = [math]::Round($fs, 2)
+        if (-not $full) {
+            $prompt = Read-Host -Prompt "Videos contains $fs Mbs of data. Copy to $nPC?"
+        }else{
+            $prompt = "y"
+        }
+        if ($prompt -eq "y" -or $prompt -eq "yes"){
+            Robocopy.exe "$oldFolder\Videos" "$newFolder\Videos" /E
+            Write-Verbose -Message "Copying Videos."
+        }elseif($prompt -eq "n" -or $prompt -eq "no"){
+            Write-Verbose -Message "Skipping Videos."
+        }else{
+            Throw "Invalid input."
+        }
+    }else{
+        Write-Verbose -Message "Videos appears to be empty. Moving on."
+    }
+} else{
+    Write-Verbose -Message "Videos not found. Moving on."
+}
+
+#Skipping downloads and music because:
+#1) Downloads is mostly junk and tends to contain duplicates.
+#2) Music is rarelly used.
