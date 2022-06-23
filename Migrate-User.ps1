@@ -19,7 +19,7 @@ if (-not (Test-Connection -ComputerName $nPC -Count 1 -Quiet)){
     Write-Verbose -Message "$nPC connected successfully." 
 }
 
-#Convert to SAMName: https://9to5it.com/powershell-find-ad-user-full-name/
+#Convert to SAMName: https://9to5it.com/powershell-find-ad-user-full-name/ (requires test in AD environment.)
 $userName = Read-Host -Prompt "User to migrate"
 #user test on old.
 if (-not (Test-Path -Path "\\$oPC\c$\users\$userName")){
