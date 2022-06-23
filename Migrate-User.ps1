@@ -127,3 +127,56 @@ if (Test-Path -Path "$oldFolder\Videos"){
 #Skipping downloads and music because:
 #1) Downloads is mostly junk and tends to contain duplicates.
 #2) Music is rarelly used.
+
+#Sticky notes
+if (Test-Path -Path "$oldFolder\AppData\Roaming\Microsoft\Sticky Notes\StickyNotes.snt"){
+    if (-not $full){
+        $prompt = Read-Host -Prompt "Windows 7 sticky notes detected. Attempt to migrate? Note this doesn't always work."
+    }else{
+        $prompt = "y"
+    }
+    if ($prompt -eq "y" -or $prompt -eq "yes"){
+        #Mixed reports online. Might be depricated after W10 1709. Some claim it still works. Keeping it in just in case.
+        if (Test-Path -Path "$newFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\"){
+            New-Item -Path "$newFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\Legacy"
+            Robocopy.exe "$oldFolder\AppData\Roaming\Microsoft\Sticky Notes\" "$newFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\Legacy" "StickyNotes.snt"
+            Rename-Item -Path "$newFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\Legacy\StickyNotes.snt" -NewName "ThresholdNotes.snt"
+            Write-Host "Open the sticky notes app to check if the move worked."
+        }else{
+            Robocopy.exe "$oldFolder\AppData\Roaming\Microsoft\Sticky Notes\" "$newFolder" "StickyNotes.snt"
+            Rename-Item -Path "$newFolder\StickyNotes.snt" -NewName "ThresholdNotes.snt"
+            if(-not (Test-Path -Path "$newFolder\README.txt")){
+                New-Item -Path "$newFolder\README.txt"
+            }
+            Out-File -FilePath "$newFolder\README.txt" "Move ThresholdNotes.snt to %localappdata%\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\Legacy before opening the stickynotes app." -Append
+        }
+    }elseif($prompt -eq "n" -or $prompt -eq "no"){
+        Write-Host "Skipping sticky notes."
+    }else{
+        Throw "Invalid input."
+    }
+}elseif(Test-Path -Path "$oldFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\plum.sqlite"){
+    if (-not $full){
+        $prompt = Read-Host -Prompt "Sticky notes detected. Copy to new PC?"
+    }else{
+        $prompt = "y"
+    }
+    if ($prompt -eq "y" -or $prompt -eq "yes"){
+        if (Test-Path -Path "$newFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\"){
+            Robocopy.exe "$oldFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\" "$newFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\" "plum.sqlite"
+            Write-Host "Sticky notes copied."
+        }else{
+            Robocopy.exe "$oldFolder\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\" "$newFolder" "plum.sqlite"
+            if(-not (Test-Path -Path "$newFolder\README.txt")){
+                New-Item -Path "$newFolder\README.txt"
+            }
+            Out-File -FilePath "$newFolder\README.txt" "Move plum.sqlite to %localappdata%\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\ before opening the stickynotes app." -Append
+        }
+    }elseif($prompt -eq "n" -or $prompt -eq "no"){
+        Write-Host "Skipping sticky notes."
+    }else{
+        Throw "Invalid input."
+    }
+}else{
+    Write-Verbose -Message "Stickynotes not found. Moving on."
+}
